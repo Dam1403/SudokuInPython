@@ -166,11 +166,9 @@ def isValidPos(board,rowNum,colNum,num,checkQuad=False):
 
     for index in [0,1,2,3,4,5,6,7,8]:
         if not (quadRow <= index < quadRow + 3):
-            #print("CHECK Row",num,row,quadRow,index)
             if num == row[index]:        
                 return False
         if not (quadCol <= index < quadCol + 3):
-            #print("CHECK Col",num,col,quadCol,index)
             if num == col[index]:
                 return False
         

@@ -1,10 +1,12 @@
 class SudokuBoard:
 
-    __board = None
-    __colBoard = None
+    __board = dict()
+    __colBoard = dict()
     __quadMap = dict()
+    __Rinferences = dict()#(rowNum: [List of possible constraints])
+    __Cinferences = dict()#(colNum: [List of possible constraints])
 
-    #Deciding Quadrants The quadrants that decide a specific quadrant
+    #Deciding Quadrants, The quadrants that decide a specific quadrant
     __decQuad = dict()
     
 
@@ -35,6 +37,13 @@ class SudokuBoard:
             6:(0,3,7,8),\
             7:(1,4,6,8),\
             8:(2,5,6,7)})
+
+        # Inference initialization 1-9
+        for index in range(0,9):
+            self.__Rinferences[index] = []
+            self.__Cinferences[index] = []
+
+        
             
     def __str__(self):
         strBoard = ""
@@ -46,15 +55,28 @@ class SudokuBoard:
             if row == 2 or row == 5 or row == 8:
                 strBoard += '\n'
         return strBoard
-                        
+
+    def exportBoard(self):
+        boardList = []
+        for row in range(0,9):
+            for col in range(0,9):
+                boardList += [self.__board[row][col]]
+        return boardList
+
+
+          
     #Create Alter Board initializations
     #TOP DOWN LEFT TO RIGHT
     # Large Array of size 81
     def setBoard(self, board1DimList):
+        #Validate Board
         index = 0
         for row in range(0,9):
             for entry in range(0,9):
-                self.__board[row][entry] = str(board1DimArray[index])
+                self.__board[row][entry] = str(board1DimList[index])
+                self.__colBoard[entry][row] = str(board1DimList[index])
+                index += 1
+        
                 
     #check if value is string
     def setCoords(self,row,column,value):
@@ -87,6 +109,7 @@ class SudokuBoard:
     #quadrants go 0 through 8 Left to right top to bottom
     def getQuadrant(self,quadNo):  
         quad = []
+        quadR,quadC = self.getQuadCoords(quadNo)
         for i in range(0,3):
             for j in range(0,3): 
                 quad += [self.getCoords(quadR + i,quadC + j)]
@@ -102,16 +125,77 @@ class SudokuBoard:
                     row -= 1
                 if column != 0 and column != 3 and column != 6:
                     column -= 1
-            return (row,column)
-                
-                
+            return (row,column)       
         return self.__quadMap[quadNo]
 
     def getDecQuads(self,quadNo):
         return self.__decQuad[quadNo]
     
-            
-            
+
+
+    def mkInf(self,possLocs,num):
+        pLen = len(possLocs)
+        if pLen == 2:
+            loc1R = possLocs[0][1]
+            loc1C = possLocs[0][2]
+            loc2R = possLocs[1][1]
+            loc2C = possLocs[1][2]
+
+            if loc1R == loc2R:
+                #print(loc1R,num,"INFERENCEROW")
+                self.__Rinferences[loc1R] = num
+            if loc1C == loc2C:
+                #print(loc1R,num,"INFERENCECOL")
+                self.__Cinferences[loc1C] = num
                 
-                
+        if pLen == 3:
+            loc1R = possLocs[0][1]
+            loc1C = possLocs[0][2]
+            loc2R = possLocs[1][1]
+            loc2C = possLocs[1][2]
+            loc3R = possLocs[2][1]
+            loc3C = possLocs[2][2]
+
+            if loc1R == loc2R == loc3R:
+                #print(loc1R,num,"INFERENCEROW")
+                self.__Rinferences[loc1R] = num
+            if loc1C == loc2C == loc3C:
+                #print(loc1R,num,"INFERENCECOL")
+                self.__Cinferences[loc1C] = num
+        
+    # get Inferences
+    #"rowcol index, \"ROW\" or \"COL\""
+    def getInf(self,index,rowOrcol):
+        if rowOrcol == "ROW":
+            return self.__Rinferences[index]
+        return self.__Cinferences[index]
+    
+    # set Inferences
+    #"rowcol index, \"ROW\" or \"COL\""
+    def setInf(self,index,num,rowOrcol):
+        if rowOrcol == "ROW":
+            self.__Rinferences[index] += [num]
+        self.__Cinferences[index] += [num]
             
+    def dumpInf(self):
+        self.Rinferences = {\
+            0: [],\
+            1: [],\
+            2: [],\
+            3: [],\
+            4: [],\
+            5: [],\
+            6: [],\
+            7: [],\
+            8: []}
+        
+        self.Cinferences = {\
+            0: [],\
+            1: [],\
+            2: [],\
+            3: [],\
+            4: [],\
+            5: [],\
+            6: [],\
+            7: [],\
+            8: []}
