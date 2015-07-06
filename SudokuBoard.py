@@ -132,7 +132,7 @@ class SudokuBoard:
         return self.__decQuad[quadNo]
     
 
-
+    #Within Quad 
     def mkInf(self,possLocs,num):
         pLen = len(possLocs)
         if pLen == 2:
@@ -167,7 +167,7 @@ class SudokuBoard:
     #"rowcol index, \"ROW\" or \"COL\""
     def getInf(self,index,rowOrcol):
         if rowOrcol == "ROW":
-            return self.__Rinferences[index]
+            return self.__Rinferences[index]#ANYTHING ELSE?
         return self.__Cinferences[index]
     
     # set Inferences
