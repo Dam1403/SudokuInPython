@@ -121,12 +121,15 @@ def validateInLine(line):
 
 
 def solve(board):
+    penMarks = createPenMarks(board)
+    #displayPenMarks(penMarks)
     for i in range(0,81):
-        penMarks = createPenMarks(board)
+        #displayPenMarks(penMarks)
         boardReduce.singlePosition(board,penMarks)
+        boardReduce.candidateLine(board,penMarks)
         resolveBoard(board,penMarks)
-        print("================")
-        print(board)
+        #displayPenMarks(penMarks)
+        #displayPenMarks(penMarks)
     displayPenMarks(penMarks)
 
     
@@ -169,6 +172,7 @@ def resolveBoard(board,penMarks):
                 continue
             if len(marks) == 1:
                 board.setCoords(i,j,penMarks[(i,j)][0])
+                penMarks[(i,j)] = None
                 #Done = False
             
                 
