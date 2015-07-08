@@ -1,6 +1,7 @@
 #https://www.sudokuoftheday.com/techniques/
 
 """
+Douglas May
 
 """
 import SudokuBoard
@@ -8,7 +9,9 @@ import boardReduce
 
 def main():
     board = SudokuBoard.SudokuBoard()
-    inType = input("User input of File input?(USER/FILE): ")
+    printBanner()                                                                                 
+    print("Version 0.35 \nCreated By Douglas May\n\n")
+    inType = input("User input or File input?(USER/FILE): ")
     if inType == "USER":
         userBoard = board_Src_UInput()
         if not userBoard:
@@ -20,6 +23,9 @@ def main():
         if not userBoard:
             return 
         board.setBoard(userBoard)
+    else:
+        print("Invalid Answer")
+        return
     print("Initial Board:")
     print(board)
     print("======================================")
@@ -122,19 +128,15 @@ def validateInLine(line):
 
 def solve(board):
     penMarks = createPenMarks(board)
-    #displayPenMarks(penMarks)
     for i in range(0,81):
-        #displayPenMarks(penMarks)
         boardReduce.singlePosition(board,penMarks)
         boardReduce.candidateLine(board,penMarks)
         resolveBoard(board,penMarks)
-        #displayPenMarks(penMarks)
-        #displayPenMarks(penMarks)
-    displayPenMarks(penMarks)
+    #displayPenMarks(penMarks)
 
     
   
-
+#User Board editing subShell!!!
 
 def createPenMarks(board=None):
     penMarks = dict()# FEED INTO VISIONS
@@ -156,8 +158,22 @@ def displayPenMarks(penMarks):
         for j in range(0,9):
             print(penMarks[(i,j)],end="")
         print("")
-            
+"""
+Single Candidate:
+https://www.sudokuoftheday.com/techniques/single-candidate/
 
+This technique is very easy –
+especially if you’re using pencilmarks to store what candidates
+are still possible within each cell.
+
+If you’ve managed to rule out all other possibilities for a particular cell
+(by examining the surrounding column, row and box),
+so there’s only one number left that could possibly fit there –
+you can fill in that number.
+
+
+
+"""
 def resolveBoard(board,penMarks):
     Done = False
     #while not Done:
@@ -176,6 +192,23 @@ def resolveBoard(board,penMarks):
                 #Done = False
             
                 
+def printBanner():
+    print("                                                                      ,-.----.            \n"\
+    "  .--.--.                                        ,-.                  \    /  \           \n"\
+    " /  /    '.                   ,---,          ,--/ /|                  |   :    \          \n"\
+    "|  :  /`. /         ,--,    ,---.'|  ,---. ,--. :/ |         ,--,     |   |  .\ :         \n"\
+    ";  |  |--`        ,'_ /|    |   | : '   ,'\:  : ' /        ,'_ /|     .   :  |: |         \n"\
+    "|  :  ;_     .--. |  | :    |   | |/   /   |  '  /    .--. |  | :     |   |   \ :   .--,  \n"\
+    " \  \    `.,'_ /| :  . |  ,--.__| .   ; ,. '  |  :  ,'_ /| :  . |     |   : .   / /_ ./|  \n"\
+    "  `----.   |  ' | |  . . /   ,'   '   | |: |  |   \ |  ' | |  . .     ;   | |`-, ' , ' :  \n"\
+    "  __ \  \  |  | ' |  | |.   '  /  '   | .; '  : |. \|  | ' |  | |     |   | ; /___/ \: |  \n"\
+    " /  /`--'  :  | : ;  ; |'   ; |:  |   :    |  | ' \ :  | : ;  ; |     :   ' |  .  \  ' |  \n"\
+    "'--'.     /'  :  `--'   |   | '/  '\   \  /'  : |--''  :  `--'   \___ :   : :   \  ;   :  \n"\
+    "  `--'---' :  ,      .-.|   :    :| `----' ;  |,'   :  ,      .-./  .\|   | :    \  \  ;  \n"\
+    "            `--`----'    \   \  /          '--'      `--`----'   \  ; `---'.|     :  \  \ \n"\
+    "                          `----'                                  `--\"  `---`      \  ' ; \n"\
+    "                                                                                    `--`  \n"\
+    )
 
     
         

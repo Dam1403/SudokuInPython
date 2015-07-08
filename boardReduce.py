@@ -1,4 +1,8 @@
 """
+Douglas May 
+
+
+
 """
 
 
@@ -36,9 +40,22 @@ Even if you don’t know exactly where to put the number yet, you can use this k
 You know that none of the other positions on that line (in the other two boxes)
 could contain that number, so you can remove those as candidates!
 
+    arguments:
+        board - the SudokuBoard
+        penMarks - The dictionary containing pencil marks
+
+    return:
+        nothing
+
 """
 
 def candidateLine(board,penMarks):
+    ROW_COORD = 1
+    COL_COORD = 2
+
+    LOCATION_1 = 0
+    LOCATION_2 = 1
+    LOCATION_3 = 2
     for num in ['1','2','3','4','5','6','7','8','9']:
         for quadNo in range(0,9):
             coords = board.getQuadCoords(quadNo)
@@ -47,55 +64,71 @@ def candidateLine(board,penMarks):
                 adjRow = row + coords[0]
                 for col in range(0,3):
                     adjCol = col + coords[1]
-                    #print("Thorough?",adjRow,adjCol)
                     marks = penMarks[(adjRow,adjCol)]
                     if marks == None:
                         continue
                     if  num in marks:
                         possLocs = possLocs + [(num,adjRow,adjCol)]
-            #print("DONE")
             pLen = len(possLocs)
             if pLen == 2:
-                loc1R = possLocs[0][1]
-                loc1C = possLocs[0][2]
-                loc2R = possLocs[1][1]
-                loc2C = possLocs[1][2]
-
+                loc1R = possLocs[LOCATION_1][ROW_COORD]
+                loc1C = possLocs[LOCATION_1][COL_COORD]
+                loc2R = possLocs[LOCATION_2][ROW_COORD]
+                loc2C = possLocs[LOCATION_2][COL_COORD]
+                
                 if loc1R == loc2R:
-                    #print(loc1R,"Num->",num,"INFERENCEROW")
-                    reduceRowEx(penMarks,board,loc1R,quadNo,[num])
+                    reduceRow(penMarks,board,loc1R,[str(num)],quadNo)
                 if loc1C == loc2C:
-                    #print(loc1C,num,"INFERENCECOL")
-                    reduceColEx(penMarks,board,loc1C,quadNo,[num])
+                    reduceCol(penMarks,board,loc1C,[str(num)],quadNo)
                     
             if pLen == 3:
-                loc1R = possLocs[0][1]
-                loc1C = possLocs[0][2]
-                loc2R = possLocs[1][1]
-                loc2C = possLocs[1][2]
-                loc3R = possLocs[2][1]
-                loc3C = possLocs[2][2]
-
+                loc1R = possLocs[LOCATION_1][ROW_COORD]
+                loc1C = possLocs[LOCATION_1][COL_COORD]
+                loc2R = possLocs[LOCATION_2][ROW_COORD]
+                loc2C = possLocs[LOCATION_2][COL_COORD]
+                loc3R = possLocs[LOCATION_3][ROW_COORD]
+                loc3C = possLocs[LOCATION_3][COL_COORD]
                 if loc1R == loc2R == loc3R:
-                    #print(loc1R,num,"INFERENCEROW")
-                    reduceRowEx(penMarks,board,loc1R,quadNo,[str(num)])
+                    reduceRow(penMarks,board,loc1R,[str(num)],quadNo)
                 if loc1C == loc2C == loc3C:
-                    #print(loc1C,num,"INFERENCECOL")
-                    reduceColEx(penMarks,board,loc1C,quadNo,[str(num)])
+                    reduceCol(penMarks,board,loc1C,[str(num)],quadNo)
                             
+"""
+    
+    Removes all pencil marks of all candidates within a given list of candidates
+    From A Quadrant.
 
+    arguments:
+        penMarks = penMarks dictionary
+        board = SudokuBoard Object
+        quadNo = quadrant Number
+        reduceArray = A list of candidates to be removed
 
+    uses:
+        bigMarks = a list of all pencilMark lists within the quad
+        marks = the pencil marks for a specific tile on the board
+        quadIso = The isolated candidates within the quad.
+        bigMarks - a list of all pencilmark lists
 
-#SEPARATE OBJECT
-# REMOVE MAGIC NUMBERS FOR MORE READABILITY
+    return:
+        None
+    
+"""
+
 def reduceQuad(penMarks,board,quadNo,reduceArray):
     coords = board.getQuadCoords(quadNo)
     bigMarks = []
     
+    ROW_COORD = 0
+    COL_COORD = 1
+
+    ISO_ELEMENT = 0
+    ISO_POSITION = 1
+    
     for row in range(0,3):
-        adjRow = row + coords[0]
+        adjRow = row + coords[ROW_COORD]
         for col in range(0,3):
-            adjCol = col + coords[1]
+            adjCol = col + coords[COL_COORD]
             marks = penMarks[(adjRow,adjCol)]
 
             bigMarks += [marks]
@@ -106,13 +139,28 @@ def reduceQuad(penMarks,board,quadNo,reduceArray):
                 reduceCoords(penMarks,adjRow,adjCol,reduce)
     quadIso = reduceOccurences(bigMarks)
     for iso in quadIso:
-        isoCrd = numToQuadCoords(iso[1])
-        penMarks[(isoCrd[0]+coords[0],isoCrd[1]+coords[1])] = [iso[0]]
+        isoCrd = numToQuadCoords(iso[ISO_POSITION])
+        isoRow = isoCrd[ROW_COORD]+coords[ROW_COORD]#convert quadrant relative position to board relative position
+        isoCol = isoCrd[COL_COORD]+coords[COL_COORD]
+        penMarks[(isoRow,isoCol)] = [iso[ISO_ELEMENT]]
 
-#returns the positions of the unique elements
-#(element,position)
+
+
+"""
+Currently used exclusively by the reduce quad Function.
+takes in a single number (0,8) and converts it into quadCoordinates.
+For Example. Number Five would be at coordinates (1,1)
+012
+345
+678
+
+    arguments:
+        num - the number to be converted
+
+    return:
+        quadrant relative position
+"""
 def numToQuadCoords(num):
-    #print(type(num),"NUM")
     coords = [0,0]
     while num != 0:
         coords[1] = coords[1] + 1
@@ -123,122 +171,180 @@ def numToQuadCoords(num):
     return (coords[0],coords[1])
 
 
-# MIGHT HAVE TO BE USED FOR ALL REDUCTIONS
+"""
+Single Position:
+    https://www.sudokuoftheday.com/techniques/single-position/
+
+This is the easiest technique to apply by eye 
+and the one that most people use first when completing paper Sudoku puzzles.
+
+Choose a row, column or box, and then go through each of the numbers that hasn’t already been placed.
+Because of other placements, the positions where you could place that number will be limited.
+Often there will be two or three places that are valid, but if you’re lucky, there’ll only be one.
+If you’ve narrowed it down to only one valid place where you can put the number…
+you can fill that number straight in, since it can’t go anywhere else!
+
+This function checks a specific group of pencilmarks(size 9)
+for any candidates that appear only once within the group
+
+
+arguments - a list of pencilmark lists
+
+banned - is the set that records which candidates have been encountered more than once
+unique - is the list that stores the candidates that appear only once
+done - is the list that contains the finished tuples for the calling function
+locations - records the index in the allMarks list that the candidate was encountered
+    Because this function doesn't know who called it (reduceRow,reduceCol or reduceQuad)
+    so the calling function handles the location accordingly
+
+returns - a list of tuples (int(1,9)element, int(0,8)location)
+    
+
+"""
 def reduceOccurences(allMarks):
-    #print(allMarks,"MARKSSS")
     banned = set()
     locations = dict()
     unique = []
     done = []
-    for i in range(0,9):
-        marks = allMarks[i]
+    for location in range(0,9):
+        marks = allMarks[location] # Get a pencilmarks list
         if marks == None:
             continue
-        for mark in marks:
+        for mark in marks:# Check the individual marks
             if mark not in unique and mark not in banned:
-     #           print(marks,"UNIQUE!!!")
-                unique += [mark]
-                locations[mark] = i
+                unique += [mark] # Add to Unique
+                locations[mark] = location # Record the location
             elif mark in unique:
-                unique.remove(mark)
-                banned.add(mark)
-    #print("END QUAD!!!")
-        
-    for element in unique:
+                unique.remove(mark) # remove from Unique, Its been seen before
+                banned.add(mark) # Ban this candidate its been seen more than once.
+ 
+    for element in unique: # add all unique elements to done
         done += [(element,locations[element])]
     return done
-        
+
+"""
+    Removes all pencil marks of all candidates within a given list of candidates
+    From A Row.
+
+    arguments:
+        penMarks = penMarks dictionary
+        board = SudokuBoard Object
+        rowNum = row Number
+        reduceArray = A list of candidates to be removed
+
+    uses:
+        bigMarks = a list of all pencilMark lists within the row
+        marks = the pencil marks for a specific tile on the board
+        rowIso = The isolated candidates within the row.
+        bigMarks - a list of all pencilmark lists
+
+    return:
+        None
     
-#Excludes the current quadrant
-def reduceRowEx(penMarks,board,rowNum,quadNo,reduceArray):
-    coords = board.getQuadCoords(quadNo)
-    
-    cols = []
-    num = coords[1]#starting col Num Counts six spaces back to exclude the chosen quadrant
-    
-    while len(cols) != 6:
-        if num-1 == -1:
-            num = 9
-        cols += [num - 1]
-        num = num - 1
-    #print(coords,cols)  
+"""
+
+
+def reduceRow(penMarks,board,rowNum,reduceArray,quadNo=None):
+    bigMarks = []
+    cols = [0,1,2,3,4,5,6,7,8]
+
+    if quadNo != None:
+        cols = []
+        coords = board.getQuadCoords(quadNo)
+        num = coords[1]#starting col Num Counts six spaces back to exclude the chosen quadrant
+        while len(cols) != 6:
+            if num-1 == -1:
+                num = 9
+            cols += [num - 1]
+            num = num - 1
     for col in cols:
         #FUNCTION??
-        marks = penMarks[rowNum,col]
-        if marks == None:
-            continue
-        for reduce in reduceArray:
-            reduceCoords(penMarks,rowNum,col,reduce)
-        #FUNCTION??
-            
         
+        marks = penMarks[rowNum,col]#get the Marks for these coordinates
+        bigMarks += [marks]#Add to bigMarks
+        if marks == None:# if there are no pencilmarks. meaning the space is already filled
+            continue
+        
+        for reduce in reduceArray:
+            reduceCoords(penMarks,rowNum,col,reduce) # remove this candidate from the pencil marks at
+    if quadNo == None:                                      #These coordinates [rowNum,col]
+        rowIso = reduceOccurences(bigMarks)
+        for iso in rowIso:
+            penMarks[(rowNum,iso[1])] = [iso[0]]
+
+"""
+    Removes all pencil marks of all candidates within a given list of candidates
+    From A COlumn.
+
+    arguments:
+        penMarks = penMarks dictionary
+        board = SudokuBoard Object
+        colNum = row Number
+        reduceArray = A list of candidates to be removed
+
+    uses:
+        bigMarks = a list of all pencilMark lists within the row
+        marks = the pencil marks for a specific tile on the board
+        colIso = The isolated candidates within the col.
+        bigMarks - a list of all pencilmark lists
+
+    return:
+        None
     
-def reduceColEx(penMarks,board,colNum,quadNo,reduceArray):
-    coords = board.getQuadCoords(quadNo)
+"""
+
     
-    rows = []
-    num = coords[0]#starting Row Num Counts six spaces back to exclude the chosen quadrant
-    while len(rows) != 6:
-        if num-1 == -1:
-            num = 9
-        rows += [num - 1]
-        num = num - 1
+def reduceCol(penMarks,board,colNum,reduceArray,quadNo=None):
+    bigMarks = []
+    rows = [0,1,2,3,4,5,6,7,8]
+
+    if quadNo != None:
+        rows = []
+        coords = board.getQuadCoords(quadNo)
+        num = coords[0]#starting Row Num Counts six spaces back to exclude the chosen quadrant
+        while len(rows) != 6:
+            if num-1 == -1:
+                num = 9
+            rows += [num - 1]
+            num = num - 1
     for row in rows:
         #FUNCTION??
-        marks = penMarks[row,colNum]
-        if marks == None:
-            continue
-        for reduce in reduceArray:
-            reduceCoords(penMarks,row,colNum,reduce)
-        #FUNCTION??
-    
-
-
-
-def reduceRow(penMarks,board,rowNum,reduceArray):
-    bigMarks = []
-    for col in range(0,9):
-        #FUNCTION??
-        
-        marks = penMarks[rowNum,col]
-        bigMarks += [marks]
-        if marks == None:
+        marks = penMarks[row,colNum]#get the pencilmarks for a specific Tile
+        bigMarks += [marks]#Add to bigMarks
+        if marks == None:# if there are no pencilmarks. meaning the space is already filled
             continue
         
         for reduce in reduceArray:
-            reduceCoords(penMarks,rowNum,col,reduce)
-        #FUNCTION??
-    quadIso = reduceOccurences(bigMarks)
-    for iso in quadIso:
-        penMarks[(rowNum,iso[1])] = [iso[0]]
+            reduceCoords(penMarks,row,colNum,reduce) # remove this candidate from the pencil marks at
+                                                    #These coordinates [rowNum,col]
+    if quadNo == None:
+        colIso = reduceOccurences(bigMarks)
+        for iso in colIso:
+            penMarks[(iso[1],colNum)] = [iso[0]]
 
-    
-def reduceCol(penMarks,board,colNum,reduceArray):
-    bigMarks = []
-    for row in range(0,9):
-        #FUNCTION??
-        marks = penMarks[row,colNum]
-        bigMarks += [marks]
-        if marks == None:
-            continue
-        for reduce in reduceArray:
-            reduceCoords(penMarks,row,colNum,reduce)
-        #FUNCTION??
-    quadIso = reduceOccurences(bigMarks)
-    for iso in quadIso:
-        penMarks[(iso[1],colNum)] = [iso[0]]
 
-#NUM MUST BE CHAR
-def reduceCoords(penMarks,row,col,num):
-    marks = penMarks[(row,col)]
-    #if row == 6 and col == 1:
-        #print(marks,row,col,num)
-        
-    if marks == None or num == 'X':
+
+"""
+Removes a specific candidate from a selected tiles pencilmarks
+    arguments:
+        penMarks - The dictionary of penmarks
+        row - the row coordinate
+        col - the col coordinate
+        candidate - the candidate to be removed
+    uses:
+        marks - the selected tiles pencilMarks
+
+"""
+#Redundancy
+#Marks can be passed in from the calling function
+#Switch if this function does not change
+def reduceCoords(penMarks,row,col,candidate):
+    marks = penMarks[(row,col)]     # get the original marks
+    if marks == None or candidate == 'X': 
         return
-    if num in marks:
-        marks.remove(num)
-    penMarks[(row,col)] = marks
+    if candidate in marks:
+        marks.remove(candidate) #remove candidate from marks
+    penMarks[(row,col)] = marks # set the new pencilmarks for the tile at (row,col)
 
 
 
