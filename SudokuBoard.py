@@ -44,7 +44,7 @@ class SudokuBoard:
             self.__Cinferences[index] = []
 
         
-            
+    #MulTIPLE DIMENSION VIews  
     def __str__(self):
         strBoard = ""
         for row in range(0,9):
@@ -66,6 +66,7 @@ class SudokuBoard:
 
           
     #Create Alter Board initializations
+    #ARRAY OF ELEMENTS
     #TOP DOWN LEFT TO RIGHT
     # Large Array of size 81
     def setBoard(self, board1DimList):

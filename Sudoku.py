@@ -7,6 +7,8 @@ Douglas May
 import SudokuBoard
 import boardReduce
 
+
+    
 def main():
     board = SudokuBoard.SudokuBoard()
     printBanner()                                                                                 
@@ -19,7 +21,7 @@ def main():
         board.setBoard(userBoard)
         print(userBoard)
     elif inType == "FILE":
-        userBoard = board_Src_FileInput()
+        userBoard = board_Src_UIFileInput()
         if not userBoard:
             return 
         board.setBoard(userBoard)
@@ -63,7 +65,7 @@ def board_Src_UInput():
     return boardArray
         
 
-def board_Src_FileInput():
+def board_Src_UIFileInput():
     boardArray = []
     valid = [0,1,2,3,4,5,6,7,8]
 
@@ -96,12 +98,13 @@ def board_Src_FileInput():
 def board_Src_External(data):
     offset = 0
     for i in range(0,9):
-        line = validline[0+offset:9+offset]
+        line = data[0+offset:9+offset]
         if not validateInLine(line):
             return False
+        offset += 9
     #CALL SOLVE METHOD
     board = SudokuBoard.SudokuBoard()
-    board.setBoard(userBoard)
+    board.setBoard(data)
     #http://view.websudoku.com/?level=4 PARSE THIS For Board
     return solve(board).exportBoard()
     
@@ -133,6 +136,7 @@ def solve(board):
         boardReduce.candidateLine(board,penMarks)
         resolveBoard(board,penMarks)
     #displayPenMarks(penMarks)
+    return board
 
     
   
@@ -210,6 +214,8 @@ def printBanner():
     "                                                                                    `--`  \n"\
     )
 
-    
-        
-main()    
+
+
+if __name__ == '__main__':
+    main()
+   
