@@ -5,7 +5,7 @@ A Sudoku Puzzle Generator,Board,Class,and Solver
 #Installation
 	Step 1: Install python 3.4 if you don't have it
 	Step 2: Download Files 
-	Step 3: Run Either SudokuCSolv.py or SudokuSolverBeta.py with idle or from a python Shell
+	Step 3: Run Either Sudoku.py or SudokuSolverBeta.py with idle or from a python Shell
 
 #Notes
 	SudokuCSolv.py and SudokuSolverBeta.py imports SudokuBoard.py
